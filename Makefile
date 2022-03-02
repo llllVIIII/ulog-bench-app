@@ -1,0 +1,124 @@
+.DEFAULT_GOAL := default
+
+GNU_INSTALL_BIN_DIR ?= 
+CROSS_COMPILE       ?= arm-none-eabi-
+VERBOSE             ?= 0
+DEBUG               ?= 0
+TARGET              ?= main
+TARGET_EXE          := $(TARGET).elf
+TARGET_BIN          := $(TARGET).bin
+TARGET_HEX          := $(TARGET).hex
+LINKER_SCRIPT       ?= src/main.ld
+
+ifeq ($(DEBUG),1)
+    BUILD_DIR ?= ./build/debug
+else
+    BUILD_DIR ?= ./build/release
+endif
+
+# echo suspend
+ifeq ($(VERBOSE),1)
+  NO_ECHO :=
+else
+  NO_ECHO := @
+endif
+
+CC      := $(GNU_INSTALL_BIN_DIR)$(CROSS_COMPILE)gcc
+AR      := $(GNU_INSTALL_BIN_DIR)$(CROSS_COMPILE)ar
+AS      := $(GNU_INSTALL_BIN_DIR)$(CROSS_COMPILE)as
+CXX     := $(GNU_INSTALL_BIN_DIR)$(CROSS_COMPILE)g++
+OBJCOPY := $(GNU_INSTALL_BIN_DIR)$(CROSS_COMPILE)objcopy
+SIZE    := $(GNU_INSTALL_BIN_DIR)$(CROSS_COMPILE)size
+MKDIR_P ?= mkdir -p
+
+NRFX_DIR  := externals/nrfx
+CMSIS_DIR := externals/CMSIS_5
+
+SRCS += \
+  src/main.c \
+  $(NRFX_DIR)/mdk/gcc_startup_nrf52840.S \
+  $(NRFX_DIR)/mdk/system_nrf52840.c \
+
+INC_DIRS := \
+  include \
+  $(NRFX_DIR) \
+  $(NRFX_DIR)/mdk \
+  $(NRFX_DIR)/helpers \
+  $(NRFX_DIR)/hal \
+  $(NRFX_DIR)/drivers \
+  $(NRFX_DIR)/drivers/include \
+  $(CMSIS_DIR)/CMSIS/Core/Include 
+
+DEFINES := NRF52840_XXAA
+
+OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
+DEPS := $(OBJS:.o=.d)
+INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+
+CFLAGS += $(INC_FLAGS) -MMD -MP
+CFLAGS += $(addprefix -D,$(DEFINES))
+# CFLAGS += --specs=nano.specs
+CFLAGS += -fconserve-stack
+CFLAGS += -fdata-sections
+CFLAGS += -ffreestanding
+CFLAGS += -ffunction-sections
+CFLAGS += -g3
+CFLAGS += -O0
+CFLAGS += -march=armv7e-m
+CFLAGS += -mfloat-abi=hard
+CFLAGS += -mfpu=fpv4-sp-d16
+CFLAGS += -mthumb
+CFLAGS += -mabi=aapcs
+CFLAGS += -std=c11
+
+CXXFLAGS += $(CFLAGS)
+
+LDFLAGS += -mabi=aapcs
+LDFLAGS += -mthumb
+LDFLAGS += -mfloat-abi=hard
+# LDFLAGS += -nostdlib
+LDFLAGS += -L$(NRFX_DIR)/mdk
+LDFLAGS += --specs=nano.specs
+LDFLAGS += -mcpu=cortex-m4
+LDFLAGS += -Wl,--gc-sections
+LDFLAGS += -T$(LINKER_SCRIPT)
+
+ASFLAGS += -D__HEAP_SIZE=8192
+ASFLAGS += -D__STACK_SIZE=8192
+
+$(TARGET_EXE): $(OBJS)
+	$(NO_ECHO)$(CC) $(LDFLAGS) -o $@ $(addprefix $(BUILD_DIR)/,$(notdir $^))
+	$(NO_ECHO)$(SIZE) $@
+
+$(TARGET_HEX): $(TARGET_EXE)
+	$(NO_ECHO)$(OBJCOPY) -O ihex $< $@
+
+$(TARGET_BIN): $(TARGET_EXE)
+	$(NO_ECHO)$(OBJCOPY) -O binary $< $@
+
+# Create object files from assembly source files
+$(BUILD_DIR)/%.S.o: %.S
+	$(NO_ECHO)$(MKDIR_P) $(dir $@)
+	$(NO_ECHO)$(CC) -x assembler-with-cpp $(ASFLAGS) -c $< -o $(addprefix $(BUILD_DIR)/,$(notdir $@))
+
+# Create object files from C source files
+$(BUILD_DIR)/%.c.o: %.c
+	$(NO_ECHO)$(MKDIR_P) $(BUILD_DIR)
+	$(NO_ECHO)$(CC) $(CFLAGS) -c $< -o $(addprefix $(BUILD_DIR)/,$(notdir $@))
+
+# Create object files from C++ source files
+$(BUILD_DIR)/%.cpp.o: %.cpp
+	$(NO_ECHO)$(MKDIR_P) $(BUILD_DIR)
+	$(NO_ECHO)$(CXX) $(CXXFLAGS) -c $< -o $(addprefix $(BUILD_DIR)/,$(notdir $@))
+
+.PHONY: clean
+
+default: $(TARGET_EXE) $(TARGET_BIN) $(TARGET_HEX)
+
+clean:
+	$(NO_ECHO)$(RM) $(abspath $(TARGET_EXE))
+	$(NO_ECHO)$(RM) $(abspath $(TARGET_HEX))
+	$(NO_ECHO)$(RM) $(abspath $(TARGET_BIN))
+	$(NO_ECHO)$(RM) -r $(abspath $(BUILD_DIR))
+
+-include $(DEPS)
