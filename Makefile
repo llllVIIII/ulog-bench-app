@@ -33,6 +33,7 @@ MKDIR_P ?= mkdir -p
 
 NRFX_DIR  := externals/nrfx
 CMSIS_DIR := externals/CMSIS_5
+ULOG_DIR  := externals/ulog
 
 SRCS += \
   src/main.c \
@@ -41,6 +42,11 @@ SRCS += \
   $(NRFX_DIR)/drivers/src/nrfx_clock.c \
   $(NRFX_DIR)/mdk/gcc_startup_nrf52840.S \
   $(NRFX_DIR)/mdk/system_nrf52840.c \
+  $(ULOG_DIR)/lib/src/gen/ulog_msg.pb.c \
+  $(ULOG_DIR)/lib/src/ulog_encoder.c \
+  $(ULOG_DIR)/lib/src/ulog.c \
+  $(ULOG_DIR)/externals/nanopb/pb_common.c \
+  $(ULOG_DIR)/externals/nanopb/pb_encode.c
 
 INC_DIRS := \
   include \
@@ -50,7 +56,10 @@ INC_DIRS := \
   $(NRFX_DIR)/hal \
   $(NRFX_DIR)/drivers \
   $(NRFX_DIR)/drivers/include \
-  $(CMSIS_DIR)/CMSIS/Core/Include 
+  $(CMSIS_DIR)/CMSIS/Core/Include \
+  $(ULOG_DIR)/lib/include \
+  $(ULOG_DIR)/lib/src/gen \
+  $(ULOG_DIR)/externals/nanopb
 
 DEFINES := NRF52840_XXAA
 
