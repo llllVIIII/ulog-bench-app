@@ -79,16 +79,16 @@ int main()
             {
                 static const uint32_t rtc_tick_us = 1 / 32768 * 1000 * 1000;
 
-                uint32_t rtc_ticks = nrfx_rtc_counter_get(&RTC0);
-                NRFX_DELAY_US(250 * 1000);
-                #if 1
+                nrfx_rtc_counter_clear(&RTC0);
+                #if 0
                     printf("Hello World\n");
                 #else 
                     ULOG_DBG("Hello World");
                 #endif
-                nrfx_rtc_counter_clear(&RTC0);
+                uint32_t rtc_ticks = nrfx_rtc_counter_get(&RTC0);
 
                 printf("time %lu ms\n", rtc_ticks * rtc_tick_us / 1000);
+                NRFX_DELAY_US(250 * 1000); // artificial slow down for debugging 
             }
         }
     }
