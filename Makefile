@@ -36,6 +36,9 @@ CMSIS_DIR := externals/CMSIS_5
 
 SRCS += \
   src/main.c \
+  $(NRFX_DIR)/drivers/src/nrfx_uart.c \
+  $(NRFX_DIR)/drivers/src/nrfx_rtc.c \
+  $(NRFX_DIR)/drivers/src/nrfx_clock.c \
   $(NRFX_DIR)/mdk/gcc_startup_nrf52840.S \
   $(NRFX_DIR)/mdk/system_nrf52840.c \
 
@@ -70,6 +73,7 @@ CFLAGS += -mfpu=fpv4-sp-d16
 CFLAGS += -mthumb
 CFLAGS += -mabi=aapcs
 CFLAGS += -std=c11
+# CFLAGS += -E
 
 CXXFLAGS += $(CFLAGS)
 
