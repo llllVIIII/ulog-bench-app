@@ -4,3 +4,6 @@
 [submodule "externals/CMSIS_5"]
 	path = externals/CMSIS_5
 	url = https://github.com/ARM-software/CMSIS_5.git
+[submodule "externals/ulog"]
+	path = externals/ulog
+	url = git@github.com:llllVIIII/ulog.git
