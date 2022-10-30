@@ -100,7 +100,7 @@ ASFLAGS += -D__HEAP_SIZE=8192
 ASFLAGS += -D__STACK_SIZE=8192
 
 $(TARGET_EXE): $(OBJS)
-	$(NO_ECHO)$(CC) $(LDFLAGS) -o $@ $(addprefix $(BUILD_DIR)/,$(notdir $^))
+	$(NO_ECHO)$(CC) $(LDFLAGS) -Wl,-Map=$(addprefix $(BUILD_DIR)/,$(@:.elf=.map)) -o $@ $(addprefix $(BUILD_DIR)/,$(notdir $^))
 	$(NO_ECHO)$(SIZE) $@
 
 $(TARGET_HEX): $(TARGET_EXE)
