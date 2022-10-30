@@ -70,13 +70,13 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 CFLAGS += $(INC_FLAGS) -MMD -MP
 CFLAGS += $(addprefix -D,$(DEFINES))
-# CFLAGS += --specs=nano.specs
 CFLAGS += -fconserve-stack
 CFLAGS += -fdata-sections
 CFLAGS += -ffreestanding
 CFLAGS += -ffunction-sections
 CFLAGS += -g3
-CFLAGS += -O0
+CFLAGS += -Og
+CFLAGS += -Wformat -Wformat-signedness
 CFLAGS += -march=armv7e-m
 CFLAGS += -mfloat-abi=hard
 CFLAGS += -mfpu=fpv4-sp-d16
