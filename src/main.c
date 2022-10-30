@@ -202,38 +202,43 @@ static const struct bench_suit bsuit = {
 
 int main()
 {
-    static const bool fast_uart = false;
-    nrfx_uart_config_t uart_cfg = NRFX_UART_DEFAULT_CONFIG(TX_PIN, RX_PIN);
-    uart_cfg.baudrate = fast_uart ? NRF_UART_BAUDRATE_1000000 : NRF_UART_BAUDRATE_115200;
-    nrf_gpio_cfg_input(BTN1_PIN, NRF_GPIO_PIN_PULLUP);
+    #if !(BENCHMARK_ULOG_SIZE || BENCHMARK_PRINTF_SIZE)
+        static const bool fast_uart = false;
+        nrfx_uart_config_t uart_cfg = NRFX_UART_DEFAULT_CONFIG(TX_PIN, RX_PIN);
+        uart_cfg.baudrate = fast_uart ? NRF_UART_BAUDRATE_1000000 : NRF_UART_BAUDRATE_115200;
+        nrf_gpio_cfg_input(BTN1_PIN, NRF_GPIO_PIN_PULLUP);
 
-    if (NRFX_SUCCESS == nrfx_uart_init(&UART0, &uart_cfg, NULL)
-        && NRFX_SUCCESS == nrfx_clock_init(on_clock_event))
-    {
-        nrfx_clock_start(NRF_CLOCK_DOMAIN_LFCLK);
-        ulog_init(&(ulog_config_t) {
-                    .buffer = (uint8_t[256]){0},
-                    .size = 256,
-                },
-                &(ulog_backend_t) {
-                    .init = ulog_backend_init,
-                    .tx = ulog_backend_tx,
-                    .deinit = ulog_backend_deinit,
-                },
-                NULL);
-
-
-        while (true)
+        if (NRFX_SUCCESS == nrfx_uart_init(&UART0, &uart_cfg, NULL)
+            && NRFX_SUCCESS == nrfx_clock_init(on_clock_event))
         {
-            if (nrf_gpio_pin_read(BTN1_PIN) == 0)
+            nrfx_clock_start(NRF_CLOCK_DOMAIN_LFCLK);
+            ulog_init(&(ulog_config_t) {
+                        .buffer = (uint8_t[256]){0},
+                        .size = 256,
+                    },
+                    &(ulog_backend_t) {
+                        .init = ulog_backend_init,
+                        .tx = ulog_backend_tx,
+                        .deinit = ulog_backend_deinit,
+                    },
+                    NULL);
+
+
+            while (true)
             {
-                bsuit.setup(&bsuit);
-                bsuit.execute(&bsuit);
-                bsuit.teardown(&bsuit);
-                NRFX_DELAY_US(500 * 1000);
+                if (nrf_gpio_pin_read(BTN1_PIN) == 0)
+                {
+                    bsuit.setup(&bsuit);
+                    bsuit.execute(&bsuit);
+                    bsuit.teardown(&bsuit);
+                    NRFX_DELAY_US(500 * 1000);
+                }
             }
         }
-    }
+    #else
+        extern void text(void);
+        text();
+    #endif
 
     while (true)
     {

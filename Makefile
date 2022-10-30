@@ -38,6 +38,7 @@ ULOG_DIR  := externals/ulog
 
 SRCS += \
   src/main.c \
+  src/text.c \
   $(NRFX_DIR)/drivers/src/nrfx_uart.c \
   $(NRFX_DIR)/drivers/src/nrfx_rtc.c \
   $(NRFX_DIR)/drivers/src/nrfx_clock.c \
@@ -63,6 +64,8 @@ INC_DIRS := \
   $(ULOG_DIR)/externals/nanopb
 
 DEFINES := NRF52840_XXAA
+DEFINES += BENCHMARK_ULOG_SIZE=$(or $(BENCHMARK_ULOG_SIZE), 0)
+DEFINES += BENCHMARK_PRINTF_SIZE=$(or $(BENCHMARK_PRINTF_SIZE), 0)
 
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
