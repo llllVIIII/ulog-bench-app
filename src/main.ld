@@ -11,9 +11,14 @@ MEMORY
 
 SECTIONS
 {
+  /*
+  * The section contents are declared with KEEP so that they are not removed
+  * from the ELF. These are never emitted in the final binary or loaded into
+  * memory.
+  */
   .ulog_rodata 0x0 (INFO) :
   {
-    KEEP(*(.ulog_rodata))
+    KEEP(*(.ulog_rodata));
   }
 }
 
