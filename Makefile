@@ -87,6 +87,7 @@ CFLAGS += -std=c11
 
 CXXFLAGS += $(CFLAGS)
 
+LDFLAGS += -Wl,--no-warn-rwx-segments
 LDFLAGS += -mabi=aapcs
 LDFLAGS += -mthumb
 LDFLAGS += -mfloat-abi=hard
