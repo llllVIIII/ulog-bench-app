@@ -30,6 +30,7 @@ CXX     := $(GNU_INSTALL_BIN_DIR)$(CROSS_COMPILE)g++
 OBJCOPY := $(GNU_INSTALL_BIN_DIR)$(CROSS_COMPILE)objcopy
 SIZE    := $(GNU_INSTALL_BIN_DIR)$(CROSS_COMPILE)size
 MKDIR_P ?= mkdir -p
+NRFJPROG ?= nrfjprog
 
 NRFX_DIR  := externals/nrfx
 CMSIS_DIR := externals/CMSIS_5
@@ -124,7 +125,7 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 	$(NO_ECHO)$(MKDIR_P) $(BUILD_DIR)
 	$(NO_ECHO)$(CXX) $(CXXFLAGS) -c $< -o $(addprefix $(BUILD_DIR)/,$(notdir $@))
 
-.PHONY: clean
+.PHONY: clean flash erase 
 
 default: $(TARGET_EXE) $(TARGET_BIN) $(TARGET_HEX)
 
@@ -133,5 +134,14 @@ clean:
 	$(NO_ECHO)$(RM) $(abspath $(TARGET_HEX))
 	$(NO_ECHO)$(RM) $(abspath $(TARGET_BIN))
 	$(NO_ECHO)$(RM) -r $(abspath $(BUILD_DIR))
+
+# Flash the program
+flash: default
+	$(NO_ECHO)echo Flashing: $(abspath $(TARGET_HEX))
+	$(NO_ECHO)$(NRFJPROG) -f nrf52 --program $(abspath $(TARGET_HEX)) --verify --sectorerase
+	$(NO_ECHO)$(NRFJPROG) -f nrf52 --reset
+
+erase:
+	$(NO_ECHO)$(NRFJPROG) -f nrf52 --eraseall
 
 -include $(DEPS)
