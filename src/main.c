@@ -157,6 +157,8 @@ void bench_printf_hello_world(void) { printf("Hello World\n"); }
 void bench_ulog_hello_world(void) { ULOG_DBG("Hello World"); }
 void bench_printf_arg1(void) { printf("%d\n", 42); }
 void bench_ulog_arg1(void) { ULOG_DBG("%d", 42); }
+void bench_printf_str_arg2(void) { printf("%s %s\n", "Hello", "World"); }
+void bench_ulog_str_arg2(void) { ULOG_DBG("%s %s", "Hello", "World"); }
 void bench_printf_arg3(void) { printf("%d %d %d\n", 42, 43, 44); }
 void bench_ulog_arg3(void) { ULOG_DBG("%d %d %d", 42, 43, 44); }
 void bench_printf_text_len64(void) { printf("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivam\n"); }
@@ -189,6 +191,8 @@ static const struct bench_suit bsuit = {
         &(const struct bench_step){ .name = "ulog_hello_world", .func = bench_ulog_hello_world },
         &(const struct bench_step){ .name = "printf_arg1", .func = bench_printf_arg1 },
         &(const struct bench_step){ .name = "ulog_arg1", .func = bench_ulog_arg1 },
+        &(const struct bench_step){ .name = "printf_str_arg2", .func = bench_printf_str_arg2 },
+        &(const struct bench_step){ .name = "ulog_str_arg2", .func = bench_ulog_str_arg2 },
         &(const struct bench_step){ .name = "printf_arg3", .func = bench_printf_arg3 },
         &(const struct bench_step){ .name = "ulog_arg3", .func = bench_ulog_arg3 },
         &(const struct bench_step){ .name = "printf_text_len64", .func = bench_printf_text_len64 },
